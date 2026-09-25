@@ -164,3 +164,203 @@ The angle between the longitudinal axis of the chassis and the ground plane. Lar
 The angle between the lateral axis of the chassis and the ground. Roll represents side-to-side chassis inclination. The paper includes roll in the observation because lateral stability matters during traversal.
 
 ![alt text](image-3.png)
+
+### 3.5) Obstacle traversal
+
+Getting the rover over the obstacle while maintaining stability and progressing towards the goal. The paper emphasizes traversability: the ability to cross uneven terrain while maintaining ground contact with as many wheels as possible.
+
+### 3.6) Reinforcement learning
+
+An agent learns by taking actions in an environment and recieving rewards.
+
+```text
+State
+  ↓
+Action
+  ↓
+Environment
+  ↓
+Reward + new state
+  ↓
+Learn better policy
+```
+
+The objective is cumulative reward.
+
+Example:
+
+- Good suspension -> rover crosses obstacle -> +100 reward
+- Bad pitch -> -100 reward and episode ends
+
+### 3.7) MDP (Markov Decision Process)
+
+The paper represents it as: (S, A, P, R)
+
+where:
+
+- S = State space
+- A = Action space
+- P = Transition probability function
+- R = Reward function
+
+### 3.8) State/Observation
+
+Observation: what the agent actually recieves: [pitch, roll, distance, height]
+
+State: the paper places those observations within the state-space.
+
+State is the underlying situation; observation is the information available to the agent about that situation. The paper explicitly notes that the rover does not have complete environmental information and describes the setup as partially observed.
+
+### 3.9) Action Space
+
+The action is:
+
+```text
+[a0, a1, a2, a3]
+```
+
+Each is bounded:
+
+- -1 ≤ ai ≤ 1
+
+These normalized actions are converted to physical angles by multiplying by 37°, the maximum allowed control link angle.
+
+Therefore:
+
+- -1 -> -37°
+- 0 -> 0°
+- 1 -> 37°
+
+The paper describes a0 and a1 as actuating control links for the middle and rear pair, and a2 and a3 as actuating control links associated with the two wheels approaching the obstacle.
+
+### 3.10) Reward
+
+Reward tells SAC whether an action was useful.
+
+Paper's reward:
+
+| Condition | Reward | Episode |
+| --- | ---: | --- |
+| pitch > 20° | −100 | ends |
+| yaw > 10° | −100 | ends |
+| obstacle crossed | +100 | ends |
+| not crossed after >430 steps | −50 | ends |
+
+The paper says no intermediate rewards were required. Successful obstacle crossing gives the positive reward.
+
+### 3.11) Policy
+
+A policy tells the agent:
+
+> Given my current state, what action should I take?
+
+The paper represents it as:
+
+$$ \pi_\phi(a_t|s_t) $$
+
+### 3.12) Actor
+
+The actor represents the policy.
+
+It answers:
+
+> Given the current observation, what action should I take?
+
+In this paper, that means predicting the four control-link actions.
+
+### 3.13) Critic
+
+The critic estimates:
+
+> How good is this state/action combination?
+
+It uses a Q-function.
+
+### 3.14) Q-function
+
+A Q-function estimates the expected future return from taking action a in state s.
+
+Conceptually:
+
+```text
+Q(s, a) = how valuable is action a when I'm in state s?
+```
+
+SAC uses two soft Q-functions.
+
+### 3.15) Replay buffer
+
+A replay buffer stores previous experiences:
+
+```text
+(state, action, reward, next state)
+```
+
+The paper calls this the replay pool D.
+
+Why?
+
+Instead of learning only from the newest transition, SAC can repeatedly sample old experiences to train the networks.
+
+### 3.16) Entropy
+
+Entropy measures the randomness/uncertainty of the policy.
+
+High entropy:
+
+- more exploration
+
+Low entropy:
+
+- more deterministic behaviour
+
+SAC maximizes:
+
+```text
+reward + α × entropy
+```
+
+The paper says the maximum-entropy objective encourages wider exploration while dropping unpromising avenues.
+
+### 3.17) SAC (Soft Actor-Critic)
+
+It is:
+
+- an off-policy, maximum-entropy deep reinforcement learning algorithm designed particularly for continuous action spaces.
+
+The paper chose it because the control problem has continuous actions and because prior SAC work reported good generalization in real-world robotics.
+
+### 3.18) PID (Propotional Integral Derivative) controller
+
+In this paper, PID is not the high-level decision maker.
+
+SAC says:
+
+> Move this control link to this angle.
+
+PID makes the motor actually achieve that desired angle.
+
+The paper says the PID controllers were manually tuned and attached to the four control-link motors.
+
+### 3.19) ROS
+
+ROS is the robotics middleware connecting components.
+
+In this paper, ROS integrates:
+
+- sensors
+- controllers
+- robot simulation
+- joint commands
+
+The paper uses ROS with Gazebo and ROS publishers to send joint position commands.
+
+### 3.20) Gazebo
+
+Gazebo is the robot simulation environment. The authors simulate the rover and terrain there rather than immediately testing everything on hardware.
+
+### 3.21) IMU (Inertial Measurement Unit)
+
+Here it provides the rover's Euler-angle variations, which are used for pitch and roll.
+
+![alt text](image-4.png)
