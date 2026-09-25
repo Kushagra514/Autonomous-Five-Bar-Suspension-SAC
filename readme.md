@@ -4,7 +4,7 @@
 
 Planetary rovers have to travel over rough, uneven terrain while carrying sensitive scientific equipment.
 
-The paper referenced "LINK" focuses on a specific problem:
+The paper referenced "[LINK](https://arxiv.org/abs/2406.18899)" focuses on a specific problem:
 
 > How can a rover actively adjust its suspension so that it can climb large obstacles while keeping its chasis stable?
 
@@ -64,23 +64,36 @@ Limitation as mentioned in the paper includes:
 
 ```mermaid
 flowchart TD
-    A[ENVIRONMENT<br/>Obstacle] --> B[Rover]
-    B --> C[IMU data<br/>pitch, roll]
-    B --> D[Environment data<br/>distance, obstacle height]
-    C --> E[OBSERVATION<br/>[pitch, roll, distance, height]]
+    A["ENVIRONMENT<br/>Obstacle"] --> B["Rover"]
+
+    B --> C["IMU Data<br/>Pitch, Roll"]
+    B --> D["Environment Data<br/>Distance, Obstacle Height"]
+
+    C --> E["OBSERVATION<br/>[Pitch, Roll, Distance, Height]"]
     D --> E
-    E --> F[SAC<br/>RL policy / actor]
-    F --> G[4 continuous actions<br/>[a0, a1, a2, a3]]
-    G --> H[ROS publishers]
-    H --> I[PID controllers]
-    I --> J[Suspension motors]
-    J --> K[Five-bar geometry]
-    K --> L[Rover movement]
+
+    E --> F["SAC<br/>RL Policy / Actor"]
+
+    F --> G["4 Continuous Actions<br/>[a0, a1, a2, a3]"]
+
+    G --> H["ROS Publishers"]
+
+    H --> I["PID Controllers"]
+
+    I --> J["Suspension Motors"]
+
+    J --> K["Five-Bar Geometry"]
+
+    K --> L["Rover Movement"]
+
     L --> A
-    L --> M[New observation]
-    M --> N[REWARD]
+    L --> M["New Observation"]
+
+    M --> N["REWARD"]
+
     N --> F
 ```
+
 
 ### S1 - Environment
 
